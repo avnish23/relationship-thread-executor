@@ -1,7 +1,8 @@
-import com.example.task.Task;
-import com.example.task.TaskTreeExecutor;
+package org.github.avnish.task;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.github.avnish.task.executor.TaskTreeRunner;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -68,15 +69,8 @@ public class TaskTreeExecutorTest {
             }
         };
 
-        TaskTreeExecutor<Boolean> executor = new TaskTreeExecutor<>(List.of(task1, task2, task3));
-
-
-
-        executor.executeAllTasks();
-
-
-
-
+        TaskTreeRunner<Boolean> executor = new TaskTreeRunner<>(List.of(task1, task2, task3));
+        executor.runAllTasks();
     }
 
     @Test
@@ -132,12 +126,7 @@ public class TaskTreeExecutorTest {
                 return true;
             }
         };
-
-        TaskTreeExecutor<Boolean> executor = new TaskTreeExecutor<>(List.of(task1, task2, task3));
-        executor.executeAllTasks();
-
-
-
-
+        TaskTreeRunner<Boolean> executor = new TaskTreeRunner<>(List.of(task1, task2, task3));
+        executor.runAllTasks();
     }
 }

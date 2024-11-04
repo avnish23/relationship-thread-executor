@@ -1,4 +1,4 @@
-package com.example.task;
+package org.github.avnish.task;
 
 import java.util.ArrayList;
 import java.util.List;

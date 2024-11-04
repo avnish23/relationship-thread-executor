@@ -1,4 +1,4 @@
-package com.example.task;
+package org.github.avnish.task;
 
 public enum TaskRunStatus {
     WAITING,

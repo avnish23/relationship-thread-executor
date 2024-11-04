@@ -1,7 +1,8 @@
-package com.example.task;
+package org.github.avnish.task;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.github.avnish.task.executor.TaskTreeRunner;
 
 import java.util.concurrent.Callable;
 
@@ -12,13 +13,13 @@ import java.util.concurrent.Callable;
  */
 public class TreeExecutorTaskWrapper<T> implements Callable<TaskResult<T>> {
 
-    protected static final Logger LOGGER = LogManager.getLogger(TaskTreeExecutor.class);
+    protected static final Logger LOGGER = LogManager.getLogger(TaskTreeRunner.class);
 
     private final TaskTree<T> tasktree;
 
-    private final TaskTreeExecutor<T> executor;
+    private final TaskTreeRunner<T> executor;
 
-    public TreeExecutorTaskWrapper(TaskTree<T> tasktree, TaskTreeExecutor<T> executor) {
+    public TreeExecutorTaskWrapper(TaskTree<T> tasktree, TaskTreeRunner<T> executor) {
         this.tasktree = tasktree;
         this.executor = executor;
     }

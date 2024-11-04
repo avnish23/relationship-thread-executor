@@ -1,7 +1,11 @@
-package com.example.task;
+package org.github.avnish.task.executor;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.github.avnish.task.Task;
+import org.github.avnish.task.TaskResult;
+import org.github.avnish.task.TaskTree;
+import org.github.avnish.task.TreeExecutorTaskWrapper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,9 +16,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class TaskTreeExecutor<T> {
+/**
+ *
+ * @param <T>
+ */
+public class TaskTreeRunner<T> {
 
-    protected static final Logger LOGGER = LogManager.getLogger(TaskTreeExecutor.class);
+    protected static final Logger LOGGER = LogManager.getLogger(TaskTreeRunner.class);
 
     private ExecutorService executor;
 
@@ -30,7 +38,7 @@ public class TaskTreeExecutor<T> {
      * @param tasks List of tasks to be executed, each containing a unique task code
      *              and a set of dependent task codes.
      */
-    public TaskTreeExecutor(List<Task<T>> tasks) {
+    public TaskTreeRunner(List<Task<T>> tasks) {
 
         // map out the list with Task Code
         for (Task<T> task : tasks) {
@@ -54,7 +62,7 @@ public class TaskTreeExecutor<T> {
      * concurrently, respecting their dependencies to ensure that parent tasks are
      * executed before their dependent child tasks.
      */
-    public List<Future<TaskResult<T>>> executeAllTasks() {
+    public List<Future<TaskResult<T>>> runAllTasks() {
         List<Future<TaskResult<T>>> futures = new ArrayList<>();
         try {
             dependencyTrees.keySet().forEach(taskCode -> {
@@ -75,15 +83,8 @@ public class TaskTreeExecutor<T> {
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    public List<TaskResult<T>> executeAllTasksAndWait() throws ExecutionException, InterruptedException {
-        List<Future<TaskResult<T>>> futures = new ArrayList<>();
-        try {
-            dependencyTrees.keySet().forEach(taskCode -> {
-                futures.add(executor.submit(new TreeExecutorTaskWrapper<>(dependencyTrees.get(taskCode), this)));
-            });
-        } finally {
-            executor.shutdown();
-        }
+    public List<TaskResult<T>> runAllTasksAndWait() throws ExecutionException, InterruptedException {
+        List<Future<TaskResult<T>>> futures = this.runAllTasks();
 
         List<TaskResult<T>> taskResults = new ArrayList<>(futures.size());
         for (Future<TaskResult<T>> future : futures) {
