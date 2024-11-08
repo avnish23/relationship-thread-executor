@@ -27,7 +27,7 @@ public class TreeExecutorTaskWrapper<T> implements Callable<TaskResult<T>> {
 
     @Override
     public TaskResult<T> call() throws Exception {
-        if (this.tasktree.isCanRun()) {
+        if (!this.tasktree.isCanRun()) {
             LOGGER.info("Task {} has been marked as Not Runnable", this.tasktree.getWorkerTask().getTaskCode());
             return new TaskResult<>(null, TaskRunStatus.NOT_RUNNABLE);
         }

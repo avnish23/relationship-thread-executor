@@ -1,7 +1,9 @@
 package org.github.avnish.task;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 /**
  * Represents a task within a tree structure where each task can have a parent task
@@ -106,6 +108,24 @@ public class TaskTree<T> {
     }
 
     /**
+     * Checks if the current task tree has any parent tasks assigned.
+     *
+     * @return {@code true} if the current task tree has no parent tasks,
+     *         otherwise {@code false}.
+     */
+    public List<TaskTree<T>>  getParents() {
+        return this.parentTasks;
+    }
+
+    /**
+     *
+     * @return taskCode
+     */
+    public String getWorkerTaskCode() {
+        return this.workerTask.getTaskCode();
+    }
+
+    /**
      *
      * @return
      */
@@ -148,34 +168,4 @@ public class TaskTree<T> {
         this.canRun = canRun;
     }
 
-
-    /**
-     * Print whole tree
-     *
-     * @return
-     */
-    public String printTaskTree() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(this.workerTask.getTaskCode());
-        sb.append( " ->");
-        append(sb, this);
-        return sb.toString();
-    }
-
-    /**
-     * Recursive method to pass the tree structure
-     *
-     * @param sb
-     * @param taskTree
-     */
-     private void append(StringBuilder sb, TaskTree<T> taskTree) {
-        if (taskTree.hasChildren()) {
-            for (TaskTree<T> chileTree : taskTree.getChildTaskTree()) {
-                append(sb, chileTree);
-            }
-        } else {
-            sb.append(taskTree.getWorkerTask().getTaskCode());
-            sb.append( " ->");
-        }
-    }
 }

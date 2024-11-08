@@ -6,11 +6,7 @@ import org.github.avnish.task.Task;
 import org.github.avnish.task.TaskResult;
 import org.github.avnish.task.TaskTree;
 import org.github.avnish.task.TreeExecutorTaskWrapper;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,7 +24,7 @@ public class TaskTreeRunner<T> {
 
     private final Map<String, TaskTree<T>> dependencyTrees = new HashMap<>();
 
-    private final Map<String, Task<T>> taskCodeMap = new HashMap<>();
+    private final Map<String, TaskTree<T>> taskCodeMap = new HashMap<>();
 
 
     /**
@@ -42,20 +38,20 @@ public class TaskTreeRunner<T> {
 
         // map out the list with Task Code
         for (Task<T> task : tasks) {
-            taskCodeMap.put(task.getTaskCode(), task);
+            taskCodeMap.put(task.getTaskCode(), new TaskTree<>(task));
         }
 
-        for (Task<T> task : tasks) {
-            populateDependencyTree(new TaskTree<>(task), taskCodeMap, dependencyTrees);
+        for (TaskTree<T> taskTree : taskCodeMap.values()) {
+            this.populateDependencyTree(taskTree, taskCodeMap, dependencyTrees);
         }
 
-        for(TaskTree<T> tree : dependencyTrees.values()) {
-           LOGGER.info(tree.printTaskTree());
-        }
+        LOGGER.info(printTaskTree(dependencyTrees));
 
         // Initialize Executor for number of Trees to be Executed
         executor = Executors.newFixedThreadPool(dependencyTrees.size());
     }
+
+
 
     /**
      * Executes all tasks present in the dependency trees. The tasks are processed
@@ -95,20 +91,18 @@ public class TaskTreeRunner<T> {
 
     // Recursively create dependency trees
     private void populateDependencyTree(TaskTree<T> currentTaskTree,
-                                       Map<String, Task<T>> taskCodeMap,
-                                       Map<String, TaskTree<T>> finalTree) {
+                                       Map<String, TaskTree<T>> taskCodeMap,
+                                       Map<String, TaskTree<T>> dependencyTree) {
 
-        Task<T> task = currentTaskTree.getWorkerTask();
-        if (task.getDependsOnTaskCodes() == null || task.getDependsOnTaskCodes().isEmpty()) {
-            finalTree.put(task.getTaskCode(), currentTaskTree);
-            return;
+        Task<T> currentTask = currentTaskTree.getWorkerTask();
+        // Only add to dependency tree if task is not dependent on any other task
+        if (currentTask.getDependsOnTaskCodes() == null || currentTask.getDependsOnTaskCodes().isEmpty()) {
+            dependencyTree.putIfAbsent(currentTask.getTaskCode(), currentTaskTree);
         }
-        for (String parentTaskCode : task.getDependsOnTaskCodes()) {
-            if (taskCodeMap.get(parentTaskCode) != null) {
-                TaskTree<T> parentTaskTree = finalTree.getOrDefault(parentTaskCode, new TaskTree<>(taskCodeMap.get(parentTaskCode)));
-                parentTaskTree.addChildTaskTree(currentTaskTree);
-                populateDependencyTree(parentTaskTree, taskCodeMap, finalTree);
-            }
+
+        for (String parentTaskCode : currentTask.getDependsOnTaskCodes()) {
+            TaskTree<T> parentTaskTree = taskCodeMap.get(parentTaskCode);
+            parentTaskTree.addChildTaskTree(currentTaskTree);
         }
     }
 
@@ -147,4 +141,27 @@ public class TaskTreeRunner<T> {
         }
 
     }
+
+    private String printTaskTree(Map<String, TaskTree<T>> dependencyTrees) {
+        Map<Integer, Set<String>> map = new HashMap<>();
+        Queue<String> queue = new LinkedList<>();
+        for (Map.Entry<String, TaskTree<T>> entry : dependencyTrees.entrySet()) {
+            Integer index = 1;
+            append(map, index, entry.getValue());
+        }
+        return map.toString();
+    }
+
+    public void append(Map<Integer, Set<String>> map, Integer index, TaskTree<T> taskTree) {
+        Set<String> set = map.computeIfAbsent(index, k -> new HashSet<>());
+        set.add(taskTree.getWorkerTask().getTaskCode());
+        if (taskTree.hasChildren()) {
+            for (TaskTree<T> child : taskTree.getChildTaskTree()) {
+                index++;
+                append(map, index, child);
+            }
+        }
+    }
 }
+
+
