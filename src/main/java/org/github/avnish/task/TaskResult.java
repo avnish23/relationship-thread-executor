@@ -8,14 +8,18 @@ public class TaskResult<T> {
 
     private Throwable throwable;
 
-    public TaskResult(T result, TaskRunStatus status) {
+    private String taskCode;
+
+    public TaskResult(T result, TaskRunStatus status, String taskCode) {
         this.result = result;
         this.status = status;
+        this.taskCode = taskCode;
     }
 
-    public TaskResult(Throwable throwable) {
+    public TaskResult(Throwable throwable, String taskCode) {
         this.throwable = throwable;
         this.status = TaskRunStatus.ERRORED;
+        this.taskCode = taskCode;
     }
 
     public boolean isErrored() {
@@ -44,5 +48,13 @@ public class TaskResult<T> {
 
     public void setResult(T result) {
         this.result = result;
+    }
+
+    public String getTaskCode() {
+        return this.taskCode;
+    }
+
+    public void setTaskCode(String taskCode) {
+        this.taskCode = taskCode;
     }
 }

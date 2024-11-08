@@ -153,7 +153,7 @@ public class TaskTree<T> {
     }
 
     /**
-     *
+     * Flag that represents if task can run or not
      * @return
      */
     public boolean isCanRun() {
